@@ -67,10 +67,7 @@ def overwhelmStats(hospitalised, cap, threshold, evalDay, verbose = None, show=F
         print("None of the simulations resulted in overwhelming of healthcare!")
 
     else:
-        plotOverwhelmDist(overwhelmDay)
-    
-    if show:
-        plt.show()
+        plotOverwhelmDist(overwhelmDay, show=show)
 
     return stats
 
@@ -127,5 +124,3 @@ def plotOverwhelmDist(Y, color = None, alpha = None, show = False):
 
     if show:
         plt.show()
-
-    return
