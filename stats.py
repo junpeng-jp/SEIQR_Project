@@ -15,7 +15,7 @@ def overwhelmStats(hospitalised, cap, threshold, evalDay, verbose = None, show=F
     overwhelm = overwhelmDay[(overwhelmDay != 0) & (overwhelmDay <= evalDay)]
     
     stats = {
-        'threshold': threshold,
+        ('threshold',): threshold,
         ('probability', 'notOverwhelm'): 1 - (len(overwhelm) / len(overwhelmDay)),
         ('probability', 'below'): sum(overwhelm < threshold) / len(overwhelmDay),
         ('probability', 'above'): sum(overwhelm >= threshold) / len(overwhelmDay)
@@ -69,7 +69,10 @@ def overwhelmStats(hospitalised, cap, threshold, evalDay, verbose = None, show=F
     else:
         plotOverwhelmDist(overwhelmDay, show=show)
 
-    return pd.DataFrame(stats)
+    stats = pd.DataFrame(stats)
+    stats.columns = pd.MultiIndex.from_tuples(stats.columns)
+
+    return stats
 
 
 def plotLineCI(x, y, color, alpha = None, seed = None, show=False):

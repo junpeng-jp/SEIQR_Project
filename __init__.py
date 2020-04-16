@@ -1,3 +1,3 @@
 # __init__.py
-import SEIR
-import stats
+import SEIQR_Project.SEIR
+import SEIQR_Project.stats
