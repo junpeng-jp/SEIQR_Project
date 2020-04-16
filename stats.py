@@ -14,8 +14,8 @@ def overwhelmStats(hospitalised, cap, verbose=None, snsExportName=None, show=Fal
     overwhelmDay = np.argmax(overwhelmDay, axis=1)
 
     stats = {
-        'pNotOverwhelm': 1 - (sum(withinEval) / len(overwhelmDay)),
-        'pOverwhelm': sum(withinEval) / len(overwhelmDay)
+        'pNotOverwhelm': sum(overwhelmDay == 0) / len(overwhelmDay),
+        'pOverwhelm': sum(overwhelmDay != 0) / len(overwhelmDay)
     }
 
     if verbose >= 1:
