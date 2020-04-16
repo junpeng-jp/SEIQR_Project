@@ -41,14 +41,14 @@ def seiqrSimulate(Y, t, base, campaign, nSim = None, seed = None):
 
     for day in progressbar.progressbar(t, widgets = widgets):
         bAdj = campaign.get('distFactor', {}).get(day, bAdj)
-        sAdj = campaign.get('hygieneFactor', {}).get(day, sAdj)
+        hAdj = campaign.get('hygieneFactor', {}).get(day, sAdj)
         gAdj = campaign.get('recoveryFactor', {}).get(day, gAdj)
         eAscAdj = campaign.get('eAscertain', {}).get(day, eAscAdj)
         iAscAdj = campaign.get('iAscertain', {}).get(day, iAscAdj)
 
         trace.append(b * bAdj)
 
-        nextY = seiqrModel(YDict, N, b * bAdj, s * sAdj , g * gAdj, m, v, eAsc + eAscAdj, iAsc + iAscAdj)
+        nextY = seiqrModel(YDict, N, b * bAdj * hAdj, s , g * gAdj, m, v, eAsc + eAscAdj, iAsc + iAscAdj)
         for grp in YDict.keys():
             YDict[grp] = np.append(YDict[grp], nextY[grp], axis=1)
 
