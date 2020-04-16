@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 
-def overwhelmStats(hospitalised, cap, threshold, evalDay, verbose = None, show=False):
+def overwhelmStats(hospitalised, cap, threshold, evalDay, verbose = None, snsExportName = None, show=False):
     if not verbose:
         verbose = 1
 
@@ -66,8 +66,11 @@ def overwhelmStats(hospitalised, cap, threshold, evalDay, verbose = None, show=F
     if len(overwhelm) == 0:
         print("None of the simulations resulted in overwhelming of healthcare!")
 
-    else:
-        plotOverwhelmDist(overwhelmDay, show=show)
+    
+    snsPlot = plotOverwhelmDist(overwhelmDay, show=show)
+
+    if snsExportName and snsPlot:
+        snsPlot.savefig(snsExportName)
 
     stats = pd.DataFrame(stats)
     stats.columns = pd.MultiIndex.from_tuples(stats.columns)
@@ -114,16 +117,22 @@ def plotOverwhelmDist(Y, color = None, alpha = None, show = False):
     if not alpha:
         alpha = 1
     
-    minDay = min(Y[Y != 0])
-    maxDay = max(Y)
+    if sum(Y[Y > 0]) == 0:
+        return None
 
-    dist = np.bincount(Y)
+    else:
+        minDay = min(Y[Y != 0])
+        maxDay = max(Y)
 
-    ax = sns.barplot(np.arange(minDay, maxDay+1), dist[minDay:maxDay+1], color=color, alpha=alpha)
-    ax.xaxis.set_major_locator(MultipleLocator(5))
-    ax.xaxis.set_minor_locator(MultipleLocator(1))
-    ax.set_xticklabels(np.arange(minDay, maxDay+1, 5), rotation=90, ha='center')
+        dist = np.bincount(Y)
+
+        ax = sns.barplot(np.arange(minDay, maxDay+1), dist[minDay:maxDay+1], color=color, alpha=alpha)
+        ax.xaxis.set_major_locator(MultipleLocator(5))
+        ax.xaxis.set_minor_locator(MultipleLocator(1))
+        ax.set_xticklabels(np.arange(minDay, maxDay+1, 5), rotation=90, ha='center')
 
 
-    if show:
-        plt.show()
+        if show:
+            plt.show()
+
+        return ax
