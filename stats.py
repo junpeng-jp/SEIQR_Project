@@ -69,7 +69,7 @@ def overwhelmStats(hospitalised, cap, threshold, evalDay, verbose = None, show=F
     else:
         plotOverwhelmDist(overwhelmDay, show=show)
 
-    return stats
+    return pd.DataFrame(stats)
 
 
 def plotLineCI(x, y, color, alpha = None, seed = None, show=False):
