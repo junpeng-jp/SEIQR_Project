@@ -1,6 +1,5 @@
 from SEIR import seiqrSimulate
-from SEIR_ode import seirODE, seiqrODE
-from stats import plotLineCI, plotCurve, plotOverwhelmDist, overwhelmStats
+from stats import  plotLineCI, plotCurve, plotOverwhelmDist, overwhelmStats
 
 from sklearn.model_selection import ParameterGrid
 
@@ -24,18 +23,10 @@ base['transmission'] = base['R0'] * (base['death'] + base['infect']) * (base['de
 
 
 branch1 = {
-    'distFactor': [{61: 1.0}, {61: 0.8, 150: 1.0}, {61: 0.6, 150: 1.0}, {61: 0.2, 90: 1.0}, {61: 0.2, 150: 1.0}],
-    'hygieneFactor': [{61: 0.9}, {61: 0.75}],
+    'distFactor': [{61: 0.8, 150: 1.0}, {61: 0.6, 150: 1.0}, {61: 0.2, 90: 1.0}, {61: 0.2, 150: 1.0}],
+    'hygieneFactor': [{61: 1.0}, {61: 0.5}],
     'eAscertain': [{61: 0.03}],
-    'iAscertain': [{61: 0.15}]
-}
-
-
-branch2 = {
-    'distFactor': [{61: 1.0}, {61: 0.8, 150: 1.0}, {61: 0.6, 150: 1.0}, {61: 0.2, 90: 1.0}, {61: 0.2, 150: 1.0}],
-    'hygieneFactor': [{61: 0.9}, {61: 0.75}],
-    'eAscertain': [{61: 0.03}],
-    'iAscertain': [{61: 0.09}]
+    'iAscertain': [{61: 0.15}]  # Quarantine
 }
 
 
@@ -44,23 +35,26 @@ Y0.insert(0, base['N'] - sum(Y0))
 t = np.arange(61, 721)
 seed = 12345
 
-params = ParameterGrid(branch2)
+# specify which parameter dictionary to loop over
+params = ParameterGrid(branch1) 
 
 allStats= []
 output = []
 runDetail = []
+count = 1
 
 # MonteCarlo
 for p in iter(params):
-    print("\n".join(['--- Current Run ---'] + [f'{k} : {v}' for k, v in p.items()] +[""]))
+    print("\n".join(['\n--- Current Run ---'] + [f'{k} : {v}' for k, v in p.items()] +[""]))
     runDetail.append(p)
 
-    data, trace = seiqrSimulate(Y0, t, base, p, nSim=10000, seed = seed)
+    data, trace = seiqrSimulate(Y0, t, base, p, nSim=20000, seed = seed)
     print('\n') # for formatting
     output.append(data)
 
     hospitalised = (data['I'] + data['Q'], data['R'])
-    allStats.append(overwhelmStats(hospitalised, 2500, 180-60, 365-60, verbose = 1, show=False))
+    allStats.append(overwhelmStats(hospitalised, 2500, 365-60, verbose = 0, show=False))
+    count += 1
     break
 
 

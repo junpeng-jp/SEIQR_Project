@@ -5,15 +5,13 @@ import numpy as np
 import pandas as pd
 
 
-def overwhelmStats(hospitalised, cap, evalDay, verbose=None, snsExportName=None, show=False):
+def overwhelmStats(hospitalised, cap, verbose=None, snsExportName=None, show=False):
     if not verbose:
         verbose = 1
 
     overwhelmDay = hospitalised[0] > cap
     # first day where hospitals are overshelmed
     overwhelmDay = np.argmax(overwhelmDay, axis=1)
-
-    withinEval = (overwhelmDay != 0) & (overwhelmDay <= evalDay)
 
     stats = {
         'pNotOverwhelm': 1 - (sum(withinEval) / len(overwhelmDay)),
@@ -23,26 +21,34 @@ def overwhelmStats(hospitalised, cap, evalDay, verbose=None, snsExportName=None,
     if verbose >= 1:
         print(
             "--- Overwhelm Probability ---",
-            f'P(not Overwhelm)\t= {stats["pNotOverwhelm"]  * 100:.3f}',
+            f'P(not Overwhelm)\t= {stats["pNotOverwhelm"]  * 100:.3f}',  
             f'P(Overwhelm)\t= {stats["pOverwhelm"] * 100:.3f}', sep='\n'
         )
 
-    if sum(np.invert(withinEval)) > 0:
-        stats['goodRemoved'] = hospitalised[1][overwhelmDay == 0, evalDay].mean()
+    if sum(overwhelmDay == 0) > 0:
+        stats['notO_Removed'] = hospitalised[1][overwhelmDay == 0, -1].mean()
+        stats['notO_WithinCap'] = np.fmin(hospitalised[0][overwhelmDay == 0], cap).sum(axis=1).mean()
 
         if verbose >= 2:
             print(
                 "----- No overwhelm -----",
-                f'Patients removed from simulation:\t{stats["goodRemoved"]}', sep='\n'
+                f'Patients removed from simulation:\t{stats["notO_Removed"]}', 
+                f'Patient Hours within Cap:\t{stats["notO_WithinCap"]}', sep='\n'
             )
 
-    if sum(withinEval) > 0:
-        stats['badRemoved'] = hospitalised[1][withinEval, -1].mean()
+    if sum(overwhelmDay != 0) > 0:
+        stats['o_Removed'] = hospitalised[1][overwhelmDay != 0, -1].mean()
+        stats['o_WithinCap'] = np.fmin(hospitalised[0][overwhelmDay != 0], cap).sum(axis=1).mean()
+        stats['o_BeyondCap'] = np.fmax(hospitalised[0][overwhelmDay != 0] - cap, 0).sum(axis=1).mean()
+        stats['o_UnattendedProp'] = stats['o_BeyondCap'] / (stats['o_WithinCap'] + stats['o_BeyondCap'])
+
         if verbose >= 2:
             print(
                 "----- Overwhelmed -----",
                 "--- Patient after {evalDay} Days ---",
-                f'Patients removed from simulation:\t{stats["badRemoved"]}', sep='\n'
+                f'Patients removed from simulation:\t{stats["o_Removed"]}',
+                f'Patient Hours within Cap:\t{stats["o_WithinCap"]}',
+                f'% of unattended Patients:\t{stats["o_UnattendedProp"]}', sep='\n'
             )
 
     else:
