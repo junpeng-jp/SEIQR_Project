@@ -26,7 +26,7 @@ def seiqrSimulate(Y, t, base, campaign, nSim = None, seed = None):
 
     # initial campaign adjustment
     bAdj = 1
-    sAdj = 1
+    hAdj = 1
     gAdj = 1
     eAscAdj = 1
     iAscAdj = 1
@@ -41,7 +41,7 @@ def seiqrSimulate(Y, t, base, campaign, nSim = None, seed = None):
 
     for day in progressbar.progressbar(t, widgets = widgets):
         bAdj = campaign.get('distFactor', {}).get(day, bAdj)
-        hAdj = campaign.get('hygieneFactor', {}).get(day, sAdj)
+        hAdj = campaign.get('hygieneFactor', {}).get(day, hAdj)
         gAdj = campaign.get('recoveryFactor', {}).get(day, gAdj)
         eAscAdj = campaign.get('eAscertain', {}).get(day, eAscAdj)
         iAscAdj = campaign.get('iAscertain', {}).get(day, iAscAdj)
