@@ -61,9 +61,11 @@ for p in iter(params):
 
     hospitalised = (data['I'] + data['Q'], data['R'])
     allStats.append(overwhelmStats(hospitalised, 2500, 180-60, 365-60, verbose = 1, show=False))
+    break
 
 
 
+allStats[0]
 
 data = pd.DataFrame(allStats)
 data.to_csv('run_data.csv', index=False)
